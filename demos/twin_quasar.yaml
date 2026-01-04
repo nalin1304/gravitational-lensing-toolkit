@@ -1,0 +1,51 @@
+# Twin Quasar (Q0957+561) - First discovered gravitational lens (1979)
+# Scientific reference: z_lens = 0.36, z_source = 1.41
+# Historic system demonstrating time delay cosmography
+
+name: "Twin Quasar"
+description: "First discovered gravitational lens Q0957+561 with double quasar images"
+
+lens:
+  model: "NFW"  # Navarro-Frenk-White profile (dark matter halo)
+  mass: 3.0e12  # solar masses (galaxy cluster scale)
+  concentration: 5.0
+  z: 0.36       # lens redshift
+  ellipticity: 0.3
+  position_angle: 120.0
+  center_x: 0.0
+  center_y: 0.0
+
+source:
+  z: 1.41       # source redshift
+  position_x: 0.2   # arcsec
+  position_y: 0.15
+  magnitude: 17.0
+  radius: 0.02
+
+observation:
+  pixel_scale: 0.05  # arcsec/pixel
+  fov_size: 256      # pixels (12.8" field)
+  noise_level: 0.015
+
+psf:
+  type: "HST_WFC3"
+  fwhm: 0.08
+
+ray_tracing:
+  mode: "thin_lens"  # 🔑 Cosmological lensing regime
+  grid_resolution: 512
+
+cosmology:
+  H0: 70.0
+  Om0: 0.3
+  Ode0: 0.7
+
+data:
+  source_image: "builtin:twin_quasar_hst"
+  use_real_data: false
+
+analysis:
+  run_pinn_inference: true
+  uncertainty_quantification: true
+  compute_time_delay: true  # Enables time delay cosmography
+  model_comparison: true

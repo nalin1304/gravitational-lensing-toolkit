@@ -1,0 +1,63 @@
+# JWST Galaxy Cluster with Dark Matter Substructure Detection
+# Demonstrates cutting-edge PINN-based substructure inference
+# Inspired by JWST deep field observations
+
+name: "JWST Cluster + Substructure"
+description: "Galaxy cluster lens with dark matter substructure detection via PINN"
+
+lens:
+  model: "NFW"  # Main cluster halo
+  mass: 1.5e14  # solar masses (massive cluster)
+  concentration: 4.0
+  z: 0.3        # cluster redshift
+  ellipticity: 0.25
+  position_angle: 75.0
+  center_x: 0.0
+  center_y: 0.0
+
+# Substructure (small dark matter clump)
+substructure:
+  enabled: true
+  model: "NFW"
+  mass: 1.0e10  # solar masses (subhalo)
+  concentration: 10.0
+  position_x: 1.5   # arcsec from cluster center
+  position_y: -1.2
+  z: 0.3
+
+source:
+  z: 2.5        # high-z background galaxy
+  position_x: 0.1
+  position_y: 0.05
+  magnitude: 24.0  # faint JWST-detected source
+  radius: 0.15     # extended galaxy
+
+observation:
+  pixel_scale: 0.03  # arcsec/pixel (JWST NIRCam resolution)
+  fov_size: 512      # pixels (~15" field)
+  noise_level: 0.01  # JWST deep exposure
+
+psf:
+  type: "JWST_NIRCAM"
+  fwhm: 0.06
+
+ray_tracing:
+  mode: "thin_lens"  # 🔑 Multi-plane thin lens for cluster + substructure
+  grid_resolution: 1024
+  adaptive_refinement: true
+
+cosmology:
+  H0: 70.0
+  Om0: 0.3
+  Ode0: 0.7
+
+data:
+  source_image: "builtin:jwst_cluster_arc"
+  use_real_data: false
+
+analysis:
+  run_pinn_inference: true
+  uncertainty_quantification: true
+  detect_substructure: true  # 🔑 Enable PINN substructure detection
+  model_comparison: true
+  output_convergence_map: true

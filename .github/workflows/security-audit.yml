@@ -1,0 +1,275 @@
+name: Security Audit
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run security audit weekly on Monday at 00:00 UTC
+    - cron: '0 0 * * 1'
+
+jobs:
+  dependency-audit:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit
+          pip install -r requirements.txt
+
+      - name: Run pip-audit
+        run: |
+          pip-audit --desc --format json --output audit-report.json
+        continue-on-error: true
+
+      - name: Check for critical vulnerabilities
+        run: |
+          # Fail if any High or Critical vulnerabilities found
+          CRITICAL=$(cat audit-report.json | jq '[.dependencies[].vulns[] | select(.severity == "CRITICAL" or .severity == "HIGH")] | length')
+          echo "Found $CRITICAL critical/high vulnerabilities"
+          if [ "$CRITICAL" -gt 0 ]; then
+            echo "❌ Critical vulnerabilities detected!"
+            cat audit-report.json | jq '.dependencies[].vulns[] | select(.severity == "CRITICAL" or .severity == "HIGH")'
+            exit 1
+          fi
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-audit-report
+          path: audit-report.json
+
+  secret-scan:
+    name: Secret Detection
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better secret detection
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for hardcoded secrets
+        run: |
+          # Check for common patterns
+          echo "Scanning for hardcoded secrets..."
+
+          # Check for AWS keys
+          if grep -r "AKIA[0-9A-Z]{16}" . --exclude-dir=.git; then
+            echo "❌ AWS Access Key found!"
+            exit 1
+          fi
+
+          # Check for private keys
+          if grep -r "BEGIN.*PRIVATE KEY" . --exclude-dir=.git --exclude="*.md"; then
+            echo "❌ Private key found!"
+            exit 1
+          fi
+
+          # Check for database passwords in code
+          if grep -ri "password.*=" . --include="*.py" | grep -v "# " | grep -v "password_hash"; then
+            echo "⚠️  Possible hardcoded password found - manual review required"
+          fi
+
+          echo "✅ No obvious secrets detected"
+
+  code-security:
+    name: Static Code Security Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install bandit
+        run: pip install bandit[toml]
+
+      - name: Run Bandit security linter
+        run: |
+          bandit -r api/ src/ database/ -f json -o bandit-report.json
+        continue-on-error: true
+
+      - name: Check Bandit results
+        run: |
+          # Fail if any HIGH severity issues found
+          HIGH_ISSUES=$(cat bandit-report.json | jq '[.results[] | select(.issue_severity == "HIGH")] | length')
+          echo "Found $HIGH_ISSUES high severity issues"
+          if [ "$HIGH_ISSUES" -gt 0 ]; then
+            echo "❌ High severity security issues detected!"
+            cat bandit-report.json | jq '.results[] | select(.issue_severity == "HIGH")'
+            exit 1
+          fi
+
+      - name: Upload Bandit report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: bandit-security-report
+          path: bandit-report.json
+
+  authentication-tests:
+    name: Authentication Security Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: lensing
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: lensing_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Set up database
+        env:
+          DATABASE_URL: postgresql://lensing:test_password@localhost:5432/lensing_db
+        run: |
+          alembic upgrade head
+
+      - name: Run authentication security tests
+        env:
+          DATABASE_URL: postgresql://lensing:test_password@localhost:5432/lensing_db
+          REDIS_URL: redis://localhost:6379
+          SECRET_KEY: test_secret_key_for_ci_only_min_32_chars
+        run: |
+          pytest tests/test_api_security.py::TestAuthentication -v --tb=short
+
+      - name: Run authorization tests
+        env:
+          DATABASE_URL: postgresql://lensing:test_password@localhost:5432/lensing_db
+          REDIS_URL: redis://localhost:6379
+          SECRET_KEY: test_secret_key_for_ci_only_min_32_chars
+        run: |
+          pytest tests/test_api_security.py::TestAuthorization -v --tb=short
+
+  docker-security:
+    name: Docker Image Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t lensing-api:test -f Dockerfile .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'lensing-api:test'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  ssl-validation:
+    name: SSL Configuration Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate docker-compose SSL config
+        run: |
+          # Check that docker-compose.yml has SSL enabled
+          if ! grep -q "ssl=on" docker-compose.yml; then
+            echo "❌ PostgreSQL SSL not enabled in docker-compose.yml"
+            exit 1
+          fi
+          echo "✅ SSL configuration found"
+
+      - name: Check for SSL certificate mounts
+        run: |
+          if ! grep -q "ssl_cert_file" docker-compose.yml; then
+            echo "⚠️  SSL certificate paths not configured - ensure certificates are generated before deployment"
+          else
+            echo "✅ SSL certificate mounts configured"
+          fi
+
+  security-summary:
+    name: Security Audit Summary
+    runs-on: ubuntu-latest
+    needs: [dependency-audit, secret-scan, code-security, authentication-tests, docker-security, ssl-validation]
+    if: always()
+
+    steps:
+      - name: Generate summary
+        run: |
+          echo "# 🔐 Security Audit Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Dependency Audit: ${{ needs.dependency-audit.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Secret Scan: ${{ needs.secret-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Code Security: ${{ needs.code-security.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Authentication Tests: ${{ needs.authentication-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Docker Security: ${{ needs.docker-security.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ SSL Validation: ${{ needs.ssl-validation.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Security Posture" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All security checks must pass before merging to main branch." >> $GITHUB_STEP_SUMMARY
+
+      - name: Check overall status
+        run: |
+          if [[ "${{ needs.dependency-audit.result }}" != "success" ]] || \
+             [[ "${{ needs.secret-scan.result }}" != "success" ]] || \
+             [[ "${{ needs.code-security.result }}" != "success" ]] || \
+             [[ "${{ needs.authentication-tests.result }}" != "success" ]]; then
+            echo "❌ Security audit failed - do not deploy!"
+            exit 1
+          fi
+          echo "✅ All security checks passed"

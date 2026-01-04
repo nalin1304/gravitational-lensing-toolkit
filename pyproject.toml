@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gravitational_lensing_toolkit"
+version = "1.0.0"
+description = "Gravitational Lensing Analysis Toolkit: PINNs, ray tracing, and scientific validation"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "Gravitational Lensing Team" }]
+license = { text = "MIT" }
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "src.*"]
+namespaces = false
+
+[project.urls]
+Homepage = "https://github.com/your-repo/gravitational-lensing-toolkit"
+Issues = "https://github.com/your-repo/gravitational-lensing-toolkit/issues"

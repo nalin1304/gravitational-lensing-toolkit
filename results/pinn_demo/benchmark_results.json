@@ -1,0 +1,23 @@
+{
+  "metrics": {
+    "relative_error": 1.0,
+    "rmse": 0.03260232135653496,
+    "mae": 0.02035427838563919,
+    "fractional_bias": -2.0,
+    "pearson_correlation": NaN,
+    "pearson_pvalue": NaN,
+    "normalized_cross_correlation": NaN,
+    "ssim": 0.10683874340124644,
+    "psnr": 24.50891213146005,
+    "residual_mean": -0.02035427838563919,
+    "residual_std": 0.025467917323112488,
+    "residual_median": -0.014236642979085445,
+    "residual_min": -0.5556008815765381,
+    "residual_max": -0.007709936238825321,
+    "residual_q25": -0.020592885091900826,
+    "residual_q75": -0.011440855450928211,
+    "residual_iqr": 0.009152029640972614
+  },
+  "test_mass": 1000000000000.0,
+  "test_conc": 5.0
+}

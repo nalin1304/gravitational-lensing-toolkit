@@ -1,0 +1,217 @@
+# Docker Compose Configuration for Gravitational Lensing Stack
+# Includes: API, Streamlit Web App, PostgreSQL, Redis, Monitoring
+
+# ============================================================================
+# 🔴 ACTION REQUIRED: Configure before first run
+# ============================================================================
+# 1. Set database password:
+#    - Option A: Create .env file with: DB_PASSWORD=your_secure_password
+#    - Option B: Replace ${DB_PASSWORD:-changeme} below with actual password
+# 
+# 2. For production deployment:
+#    - Change DB_PASSWORD from 'changeme'
+#    - Set ENVIRONMENT=production in api service
+#    - Configure resource limits as needed
+#
+# See DOCKER_SETUP.md for detailed instructions
+# ============================================================================
+
+version: '3.8'
+
+services:
+  # ============================================================================
+  # PostgreSQL Database
+  # ============================================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: lensing-db
+    env_file:
+      - .env  # Load environment variables from .env file
+    environment:
+      POSTGRES_USER: lensing
+      # 🔴 CHANGE THIS: Set secure password in .env as DB_PASSWORD
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD_REQUIRED}  
+      POSTGRES_DB: lensing_db
+    # P2 SECURITY FIX: Enable SSL/TLS encryption (Uncomment for production)
+    # command: >
+    #   postgres
+    #   -c ssl=on
+    #   -c ssl_cert_file=/var/lib/postgresql/server.crt
+    #   -c ssl_key_file=/var/lib/postgresql/server.key
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # Mount SSL certificates (create these before deploying)
+      # - ./database/ssl/server.crt:/var/lib/postgresql/server.crt:ro
+      # - ./database/ssl/server.key:/var/lib/postgresql/server.key:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lensing"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - lensing-network
+
+  # ============================================================================
+  # Redis Cache
+  # ============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: lensing-cache
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - lensing-network
+
+  # ============================================================================
+  # FastAPI Backend
+  # ============================================================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lensing-api
+    env_file:
+      - .env  # Load environment variables from .env file
+    environment:
+      # 🔴 CHANGE THIS: Must match POSTGRES_PASSWORD above
+      - DATABASE_URL=postgresql://lensing:${DB_PASSWORD:?DB_PASSWORD_REQUIRED}@postgres:5432/lensing_db
+      - REDIS_URL=redis://redis:6379
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - ./results:/app/results
+      - ./data:/app/data
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+    networks:
+      - lensing-network
+
+  # ============================================================================
+  # Streamlit Web App
+  # ============================================================================
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: lensing-webapp
+    environment:
+      - API_URL=http://api:8000
+    volumes:
+      - ./app:/app/app
+      - ./data:/app/data
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - lensing-network
+
+  # ============================================================================
+  # Nginx Reverse Proxy (Uncomment for production if config exists)
+  # ============================================================================
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: lensing-nginx
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./nginx/ssl:/etc/nginx/ssl:ro
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   depends_on:
+  #     - api
+  #     - webapp
+  #   networks:
+  #     - lensing-network
+
+  # ============================================================================
+  # Prometheus Monitoring
+  # ============================================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: lensing-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    networks:
+      - lensing-network
+
+  # ============================================================================
+  # Grafana Dashboards
+  # ============================================================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: lensing-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - lensing-network
+
+# ============================================================================
+# Volumes
+# ============================================================================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+# ============================================================================
+# Networks
+# ============================================================================
+networks:
+  lensing-network:
+    driver: bridge

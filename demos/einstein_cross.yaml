@@ -1,0 +1,49 @@
+# Einstein Cross (Q2237+030) - Famous quadruple-image quasar lens
+# Scientific reference: z_lens = 0.04, z_source = 1.695
+# One of the most studied gravitational lenses in astronomy
+
+name: "Einstein Cross"
+description: "Quadruple-image quasar lensed by foreground galaxy (Q2237+030)"
+
+lens:
+  model: "SIS"  # Singular Isothermal Sphere - classic strong lens model
+  mass: 1.0e11  # solar masses (~L* galaxy)
+  z: 0.04       # lens redshift (low-z, cosmological regime)
+  ellipticity: 0.15
+  position_angle: 45.0  # degrees
+  center_x: 0.0
+  center_y: 0.0
+
+source:
+  z: 1.695      # source redshift (high-z quasar)
+  position_x: 0.05  # arcsec offset from lens center
+  position_y: 0.05
+  magnitude: 18.5
+  radius: 0.01  # compact quasar core
+
+observation:
+  pixel_scale: 0.05  # arcsec/pixel (HST-like resolution)
+  fov_size: 128      # pixels (6.4" field of view)
+  noise_level: 0.02  # realistic HST noise
+
+psf:
+  type: "HST_ACS"
+  fwhm: 0.1  # arcsec
+
+ray_tracing:
+  mode: "thin_lens"  # 🔑 Enforced for cosmological validity (z > 0.05)
+  grid_resolution: 256
+
+cosmology:
+  H0: 70.0    # km/s/Mpc
+  Om0: 0.3
+  Ode0: 0.7
+
+data:
+  source_image: "builtin:einstein_cross_hst"  # Auto-fetched HST observation
+  use_real_data: false  # Set true to use actual HST image
+
+analysis:
+  run_pinn_inference: true
+  uncertainty_quantification: true
+  model_comparison: false  # Fast demo mode
