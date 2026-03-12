@@ -1,0 +1,62 @@
+{
+  "smacs_0723": {
+    "name": "SMACS J0723.2-7327",
+    "ra": 110.8167,
+    "dec": -73.45,
+    "z": 0.39,
+    "description": "JWST CEERS cluster lens",
+    "instruments": [
+      "NIRCam",
+      "NIRISS"
+    ],
+    "filters": [
+      "F200W",
+      "F150W",
+      "F444W"
+    ]
+  },
+  "smacs_0329": {
+    "name": "SMACS J0329.2-4051",
+    "ra": 52.35,
+    "dec": -40.85,
+    "z": 0.45,
+    "description": "Strong lensing cluster",
+    "instruments": [
+      "NIRCam"
+    ],
+    "filters": [
+      "F200W",
+      "F356W"
+    ]
+  },
+  "abell_2744": {
+    "name": "Abell 2744",
+    "ra": 3.5875,
+    "dec": -30.3883,
+    "z": 0.306,
+    "description": "Pandora's Cluster - JWST GLASS",
+    "instruments": [
+      "NIRCam",
+      "NIRISS"
+    ],
+    "filters": [
+      "F090W",
+      "F200W",
+      "F356W"
+    ]
+  },
+  "el_gordo": {
+    "name": "ACT-CL J0102-4915 (El Gordo)",
+    "ra": 15.5833,
+    "dec": -49.2833,
+    "z": 0.87,
+    "description": "Massive cluster lens",
+    "instruments": [
+      "NIRCam"
+    ],
+    "filters": [
+      "F150W",
+      "F200W"
+    ]
+  }
+}

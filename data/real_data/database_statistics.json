@@ -1,0 +1,43 @@
+{
+  "total_lenses": 145,
+  "quad_images": 72,
+  "double_images": 72,
+  "time_delay_lenses": 20,
+  "cosmography_lenses": 10,
+  "cluster_lenses": 10,
+  "surveys": [
+    "Jackson et al. 1995",
+    "Syer & Tremaine 1996",
+    "Kochanek et al. 2000",
+    "COSMOGRAIL",
+    "H0LiCOW",
+    "Walsh et al. 1979",
+    "Kundi\u0107 et al. 1997",
+    "SDSS/CFHT",
+    "Jackson et al. 1998",
+    "SLACS",
+    "Kundi\u0107 et al. 1995",
+    "DES",
+    "Augusto et al. 2001",
+    "Marlow et al. 1999",
+    "SDSS",
+    "HST/CLASH",
+    "HST",
+    "Patnaik et al. 1993",
+    "CLASS",
+    "King et al. 1997",
+    "SDSS/HST",
+    "Patnaik et al. 1992",
+    "BELLS"
+  ],
+  "redshift_range": {
+    "min_z_lens": 0.0395,
+    "max_z_lens": 0.95,
+    "min_z_source": 0.352,
+    "max_z_source": 3.23
+  },
+  "einstein_radius_range": {
+    "min_theta_e": 0.32,
+    "max_theta_e": 43.0
+  }
+}

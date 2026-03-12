@@ -1,0 +1,37 @@
+[
+  {
+    "name": "SDSS J0037-0942",
+    "mass_lensing": 270707958276.3922,
+    "mass_dynamical": 299173461209.18066,
+    "ratio": 1.1051520727873292,
+    "passed": true
+  },
+  {
+    "name": "SDSS J0216-0813",
+    "mass_lensing": 456150229100.8123,
+    "mass_dynamical": 233871354209.40683,
+    "ratio": 0.5127068656096623,
+    "passed": true
+  },
+  {
+    "name": "SDSS J0737+3216",
+    "mass_lensing": 440766038323.1806,
+    "mass_dynamical": 295445307202.7667,
+    "ratio": 0.6702996181982126,
+    "passed": true
+  },
+  {
+    "name": "SDSS J0912+0029",
+    "mass_lensing": 217048182957.4047,
+    "mass_dynamical": 172258185780.84625,
+    "ratio": 0.7936403034281637,
+    "passed": true
+  },
+  {
+    "name": "SDSS J0959+0410",
+    "mass_lensing": 156062504117.7187,
+    "mass_dynamical": 192954862656.5653,
+    "ratio": 1.2363947621333728,
+    "passed": true
+  }
+]

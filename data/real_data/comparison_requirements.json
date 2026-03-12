@@ -1,0 +1,26 @@
+{
+  "description": "External validation data requirements for publication",
+  "required_tools": {
+    "lenstool": {
+      "url": "https://lenstool.iap.fr/",
+      "purpose": "Mass modeling and ray tracing",
+      "status": "REQUIRED for publication"
+    },
+    "glafic": {
+      "url": "http://www.astro.utokyo.ac.jp/~k.oguri/research/glafic/",
+      "purpose": "Gravitational lensing calculations",
+      "status": "REQUIRED for publication"
+    },
+    "lensmodel": {
+      "url": "https://www.astro.caltech.edu/~arjen/lensmodel.html",
+      "purpose": "Lens modeling",
+      "status": "OPTIONAL"
+    }
+  },
+  "validation_procedure": [
+    "1. Run your lens model through lenstool/glafic",
+    "2. Export convergence maps in FITS format",
+    "3. Compare with our PINN predictions using compare_with_lenstool()",
+    "4. Report RMSE, MAE, and correlation coefficients"
+  ]
+}

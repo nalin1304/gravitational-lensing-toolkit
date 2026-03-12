@@ -335,7 +335,7 @@ def infer_h0(
     # Compute posterior (assume flat prior)
     # P(H0|data) ∝ exp(-χ²/2)
     posterior = np.exp(-0.5 * (chi2_grid - chi2_min))
-    posterior /= np.trapz(posterior, h0_grid)  # Normalize
+    posterior /= np.trapezoid(posterior, h0_grid)  # Normalize
     
     # Degrees of freedom
     n_obs = len(observed_delays)

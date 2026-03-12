@@ -10,7 +10,7 @@ Date: October 2025
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc
 from typing import Optional, List, Dict
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .models import (
     User, Analysis, Job, Result, ApiKey, 
@@ -270,11 +270,11 @@ def update_job_status(
     
     # Update timestamps
     if status == JobStatus.RUNNING and not job.started_at:
-        job.started_at = datetime.utcnow()
+        job.started_at = datetime.now(timezone.utc)
     if status in [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED]:
-        job.completed_at = datetime.utcnow()
+        job.completed_at = datetime.now(timezone.utc)
         if job.started_at:
-            duration = (datetime.utcnow() - job.started_at).total_seconds()
+            duration = (datetime.now(timezone.utc) - job.started_at).total_seconds()
             job.duration_seconds = duration
     
     db.commit()
@@ -409,7 +409,7 @@ def mark_notification_read(db: Session, notification_id: int) -> Optional[Notifi
         return None
     
     notification.is_read = True
-    notification.read_at = datetime.utcnow()
+    notification.read_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(notification)
     return notification
@@ -422,7 +422,7 @@ def mark_all_notifications_read(db: Session, user_id: int) -> int:
         Notification.is_read == False
     ).update({
         "is_read": True,
-        "read_at": datetime.utcnow()
+        "read_at": datetime.now(timezone.utc)
     })
     db.commit()
     return count
@@ -522,7 +522,7 @@ def increment_shared_link_usage(db: Session, token: str) -> Optional[SharedLink]
         return None
     
     link.use_count += 1
-    link.last_accessed = datetime.utcnow()
+    link.last_accessed = datetime.now(timezone.utc)
     
     # Deactivate if max uses reached
     if link.max_uses and link.use_count >= link.max_uses:

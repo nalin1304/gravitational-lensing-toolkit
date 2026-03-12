@@ -1,0 +1,82 @@
+{
+  "SDSS_J1004+4112": {
+    "ra": 10.0425,
+    "dec": 41.1928,
+    "proposal_ids": [
+      10563,
+      10793,
+      11502
+    ],
+    "description": "5-image quasar lens"
+  },
+  "Q0957+561": {
+    "ra": 9.9586,
+    "dec": 55.9503,
+    "proposal_ids": [
+      5787,
+      6555,
+      7455
+    ],
+    "description": "Twin Quasar - first discovered gravitational lens"
+  },
+  "Q2237+0305": {
+    "ra": 9.9745,
+    "dec": 3.2583,
+    "proposal_ids": [
+      5415,
+      6554,
+      7454
+    ],
+    "description": "Einstein Cross - 4-image quasar"
+  },
+  "RXJ_1131-1231": {
+    "ra": 11.3132,
+    "dec": -12.3106,
+    "proposal_ids": [
+      9744,
+      10887,
+      12243
+    ],
+    "description": "Quad lens with interesting flux ratios"
+  },
+  "HE0435-1223": {
+    "ra": 4.3857,
+    "dec": -12.3989,
+    "proposal_ids": [
+      9744,
+      10793,
+      12242
+    ],
+    "description": "Well-studied time-delay lens"
+  },
+  "B1608+656": {
+    "ra": 16.0873,
+    "dec": 65.5429,
+    "proposal_ids": [
+      6543,
+      7455,
+      8590
+    ],
+    "description": "Double lens with time delay"
+  },
+  "PG_1115+080": {
+    "ra": 11.3961,
+    "dec": 7.8706,
+    "proposal_ids": [
+      5125,
+      6554,
+      7454
+    ],
+    "description": "Classic quad lens"
+  },
+  "B1422+231": {
+    "ra": 14.5421,
+    "dec": 22.9233,
+    "proposal_ids": [
+      3585,
+      5095,
+      6555
+    ],
+    "description": "High resolution quad"
+  }
+}

@@ -217,7 +217,7 @@ class TestH0Inference:
         result = infer_h0(observed, images, source, point_mass, n_grid=100)
         
         # Integral of posterior should be ~1
-        integral = np.trapz(result['posterior'], result['h0_grid'])
+        integral = np.trapezoid(result['posterior'], result['h0_grid'])
         assert np.abs(integral - 1.0) < 0.01
     
     def test_chi2_minimum_at_best_h0(self, point_mass):

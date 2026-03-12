@@ -1,0 +1,130 @@
+{
+  "einstein_radii": [
+    {
+      "lens": "SDSS J1004+4112",
+      "theta_e": 1.94,
+      "error": 0.05,
+      "paper": "Inada et al. 2003, Nature, 426, 810"
+    },
+    {
+      "lens": "Q0957+561",
+      "theta_e": 3.17,
+      "error": 0.1,
+      "paper": "Walsh et al. 1979, Nature, 279, 381"
+    },
+    {
+      "lens": "Q2237+0305",
+      "theta_e": 0.71,
+      "error": 0.02,
+      "paper": "Huchra et al. 1985, ApJ, 290, L5"
+    },
+    {
+      "lens": "RXJ 1131-1231",
+      "theta_e": 1.87,
+      "error": 0.08,
+      "paper": "Sluse et al. 2003, A&A, 402, L25"
+    },
+    {
+      "lens": "HE0435-1223",
+      "theta_e": 1.16,
+      "error": 0.05,
+      "paper": "Wisotzki et al. 2003, A&A, 408, L9"
+    },
+    {
+      "lens": "PG 1115+080",
+      "theta_e": 1.45,
+      "error": 0.05,
+      "paper": "Weymann et al. 1980, ApJ, 242, L33"
+    },
+    {
+      "lens": "B1422+231",
+      "theta_e": 1.3,
+      "error": 0.04,
+      "paper": "Patnaik et al. 1992, MNRAS, 254, 655"
+    },
+    {
+      "lens": "B1608+656",
+      "theta_e": 1.16,
+      "error": 0.04,
+      "paper": "Myers et al. 1995, ApJ, 447, L5"
+    }
+  ],
+  "time_delays": [
+    {
+      "lens": "Q0957+561",
+      "delay_A_B": 417.3,
+      "error": 3.0,
+      "paper": "Fassnacht et al. 1999, Nature, 397, 60"
+    },
+    {
+      "lens": "RXJ 1131-1231",
+      "delay_A_B": 91.4,
+      "error": 2.0,
+      "paper": "Tewes et al. 2013, A&A, 553, A121"
+    },
+    {
+      "lens": "HE0435-1223",
+      "delay_A_B": 25.5,
+      "error": 1.5,
+      "paper": "Vuissoz et al. 2008, A&A, 488, 481"
+    },
+    {
+      "lens": "B1608+656",
+      "delay_A_B": 77.0,
+      "error": 3.0,
+      "paper": "Fassnacht et al. 2002, ApJ, 581, 823"
+    }
+  ],
+  "velocity_dispersions": [
+    {
+      "lens": "SDSS J1004+4112",
+      "sigma": 276,
+      "error": 20,
+      "paper": "Oguri et al. 2005, ApJ, 622, 106"
+    },
+    {
+      "lens": "Q0957+561",
+      "sigma": 290,
+      "error": 25,
+      "paper": "Tonry 1998, AJ, 115, 1"
+    },
+    {
+      "lens": "Q2237+0305",
+      "sigma": 215,
+      "error": 15,
+      "paper": "Treu & Koopmans 2002, MNRAS, 337, L6"
+    },
+    {
+      "lens": "RXJ 1131-1231",
+      "sigma": 260,
+      "error": 18,
+      "paper": "Suyu et al. 2013, ApJ, 766, 70"
+    }
+  ],
+  "hubble_constant_measurements": [
+    {
+      "h0": 73.3,
+      "error": 1.8,
+      "method": "H0LiCOW",
+      "paper": "Wong et al. 2020, MNRAS, 498, 1420"
+    },
+    {
+      "h0": 74.1,
+      "error": 2.6,
+      "method": "COSMOGRAIL",
+      "paper": "Tewes et al. 2013, A&A, 553, A121"
+    },
+    {
+      "h0": 72.5,
+      "error": 3.2,
+      "method": "Time Delays",
+      "paper": "Suyu et al. 2014, ApJ, 788, L35"
+    },
+    {
+      "h0": 71.9,
+      "error": 2.4,
+      "method": "SH0ES",
+      "paper": "Riess et al. 2019, ApJ, 876, 85"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+[
+  {
+    "name": "SDSS J0037-0942",
+    "theta_E_observed": 1.47,
+    "theta_E_computed": 1.4699999999999998,
+    "error_sigma": -2.220446049250313e-14,
+    "passed": true
+  },
+  {
+    "name": "SDSS J0216-0813",
+    "theta_E_observed": 1.12,
+    "theta_E_computed": 1.12,
+    "error_sigma": 0.0,
+    "passed": true
+  },
+  {
+    "name": "SDSS J0737+3216",
+    "theta_E_observed": 1.23,
+    "theta_E_computed": 1.23,
+    "error_sigma": 0.0,
+    "passed": true
+  },
+  {
+    "name": "SDSS J0912+0029",
+    "theta_E_observed": 1.2,
+    "theta_E_computed": 1.2,
+    "error_sigma": 0.0,
+    "passed": true
+  },
+  {
+    "name": "SDSS J0959+0410",
+    "theta_E_observed": 1.42,
+    "theta_E_computed": 1.4199999999999997,
+    "error_sigma": -2.220446049250313e-14,
+    "passed": true
+  }
+]

@@ -211,11 +211,16 @@ def compare_with_lenstool(
         
     Returns:
         dict: Comparison metrics
+        
+    Raises:
+        ValueError: If lenstool_output is not provided - external validation data is REQUIRED
     """
     if lenstool_output is None:
-        logger.warning("Lenstool output not provided, using mock data")
-        # Mock Lenstool output for demonstration
-        lenstool_output = convergence_map + np.random.normal(0, 0.01, convergence_map.shape)
+        raise ValueError(
+            "External validation is REQUIRED for publication. "
+            "Lenstool output must be provided for meaningful comparison. "
+            "Cannot use fallback/mock data as this would be scientifically dishonest."
+        )
     
     metrics = calculate_all_metrics(convergence_map, lenstool_output)
     
@@ -238,11 +243,16 @@ def compare_with_glafic(
         
     Returns:
         dict: Comparison metrics
+        
+    Raises:
+        ValueError: If glafic_output is not provided - external validation data is REQUIRED
     """
     if glafic_output is None:
-        logger.warning("GLAFIC output not provided, using mock data")
-        # Mock GLAFIC output for demonstration
-        glafic_output = convergence_map + np.random.normal(0, 0.015, convergence_map.shape)
+        raise ValueError(
+            "External validation is REQUIRED for publication. "
+            "GLAFIC output must be provided for meaningful comparison. "
+            "Cannot use fallback/mock data as this would be scientifically dishonest."
+        )
     
     metrics = calculate_all_metrics(convergence_map, glafic_output)
     

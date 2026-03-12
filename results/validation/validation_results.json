@@ -1,0 +1,348 @@
+{
+  "description": "Systematic validation of lens modeling calculations",
+  "benchmarks": [
+    {
+      "system": "SDSS J0959+0410",
+      "einstein_radius": {
+        "point_mass": 1.9982417558024221,
+        "nfw": null,
+        "expected": 1.42,
+        "point_mass_error": 0.40721250408621285
+      },
+      "deflection_tests": [
+        {
+          "radius": 0.71,
+          "deflection": 348.7939395061106,
+          "relative_error": null
+        },
+        {
+          "radius": 1.42,
+          "deflection": 149.5820893059637,
+          "relative_error": null
+        },
+        {
+          "radius": 2.84,
+          "deflection": 62.40833710627123,
+          "relative_error": null
+        },
+        {
+          "radius": 7.1,
+          "deflection": 18.471416563627237,
+          "relative_error": null
+        }
+      ],
+      "kappa_tests": [
+        {
+          "radius": 0.71,
+          "kappa": 0.004342931947816014
+        },
+        {
+          "radius": 1.42,
+          "kappa": 0.00378230785573901
+        },
+        {
+          "radius": 2.84,
+          "kappa": 0.0032222859024163444
+        },
+        {
+          "radius": 7.1,
+          "kappa": 0.0024854475362266594
+        }
+      ],
+      "psi_tests": [
+        {
+          "radius": 0.71,
+          "psi": 0.002393200850338534
+        },
+        {
+          "radius": 1.42,
+          "psi": 0.008442116987634439
+        },
+        {
+          "radius": 2.84,
+          "psi": 0.029248334700785916
+        },
+        {
+          "radius": 7.1,
+          "psi": 0.14555224450067059
+        }
+      ]
+    },
+    {
+      "system": "SDSS J1029+2623",
+      "einstein_radius": {
+        "point_mass": 3.6118895272008245,
+        "nfw": null,
+        "expected": 3.18,
+        "point_mass_error": 0.13581431672981895
+      },
+      "deflection_tests": [
+        {
+          "radius": 1.59,
+          "deflection": 135.76739640783234,
+          "relative_error": null
+        },
+        {
+          "radius": 3.18,
+          "deflection": 54.456174374662446,
+          "relative_error": null
+        },
+        {
+          "radius": 6.36,
+          "deflection": 20.64078497793263,
+          "relative_error": null
+        },
+        {
+          "radius": 15.9,
+          "deflection": 5.0015293070554465,
+          "relative_error": null
+        }
+      ],
+      "kappa_tests": [
+        {
+          "radius": 1.59,
+          "kappa": 0.012825749324861526
+        },
+        {
+          "radius": 3.18,
+          "kappa": 0.01059797665570947
+        },
+        {
+          "radius": 6.36,
+          "kappa": 0.008393840223389184
+        },
+        {
+          "radius": 15.9,
+          "kappa": 0.0055931778481126725
+        }
+      ],
+      "psi_tests": [
+        {
+          "radius": 1.59,
+          "psi": 0.03650224521504882
+        },
+        {
+          "radius": 3.18,
+          "psi": 0.12342833406627819
+        },
+        {
+          "radius": 6.36,
+          "psi": 0.4039249594136688
+        },
+        {
+          "radius": 15.9,
+          "psi": 1.7994442593907305
+        }
+      ]
+    },
+    {
+      "system": "Q0957+561",
+      "einstein_radius": {
+        "point_mass": 4.231391646704353,
+        "nfw": null,
+        "expected": 3.05,
+        "point_mass_error": 0.3873415235096239
+      },
+      "deflection_tests": [
+        {
+          "radius": 1.525,
+          "deflection": 36.45358349195833,
+          "relative_error": null
+        },
+        {
+          "radius": 3.05,
+          "deflection": 12.874532892488906,
+          "relative_error": null
+        },
+        {
+          "radius": 6.1,
+          "deflection": 4.0454933619489575,
+          "relative_error": null
+        },
+        {
+          "radius": 15.25,
+          "deflection": 0.6810375478195789,
+          "relative_error": null
+        }
+      ],
+      "kappa_tests": [
+        {
+          "radius": 1.525,
+          "kappa": 0.05090098820791053
+        },
+        {
+          "radius": 3.05,
+          "kappa": 0.03829579217551273
+        },
+        {
+          "radius": 6.1,
+          "kappa": 0.026510666918694453
+        },
+        {
+          "radius": 15.25,
+          "kappa": 0.013626914393063778
+        }
+      ],
+      "psi_tests": [
+        {
+          "radius": 1.525,
+          "psi": 0.1401088918071646
+        },
+        {
+          "radius": 3.05,
+          "psi": 0.44112194915694863
+        },
+        {
+          "radius": 6.1,
+          "psi": 1.3058823070463805
+        },
+        {
+          "radius": 15.25,
+          "psi": 4.799105374367258
+        }
+      ]
+    },
+    {
+      "system": "RXJ 1131-1231",
+      "einstein_radius": {
+        "point_mass": 3.0117025572609664,
+        "nfw": null,
+        "expected": 3.52,
+        "point_mass_error": 0.1444026825963164
+      },
+      "deflection_tests": [
+        {
+          "radius": 1.76,
+          "deflection": 39.18850088589898,
+          "relative_error": null
+        },
+        {
+          "radius": 3.52,
+          "deflection": 14.733319906038906,
+          "relative_error": null
+        },
+        {
+          "radius": 7.04,
+          "deflection": 5.072600215814884,
+          "relative_error": null
+        },
+        {
+          "radius": 17.6,
+          "deflection": 1.0113073727152626,
+          "relative_error": null
+        }
+      ],
+      "kappa_tests": [
+        {
+          "radius": 1.76,
+          "kappa": 0.016258637575222622
+        },
+        {
+          "radius": 3.52,
+          "kappa": 0.012800280370377138
+        },
+        {
+          "radius": 7.04,
+          "kappa": 0.009456121005229336
+        },
+        {
+          "radius": 17.6,
+          "kappa": 0.005485465273108105
+        }
+      ],
+      "psi_tests": [
+        {
+          "radius": 1.76,
+          "psi": 0.05818791673247052
+        },
+        {
+          "radius": 3.52,
+          "psi": 0.18955706169997807
+        },
+        {
+          "radius": 7.04,
+          "psi": 0.5887553306786565
+        },
+        {
+          "radius": 17.6,
+          "psi": 2.3676040716825
+        }
+      ]
+    },
+    {
+      "system": "B1422+231",
+      "einstein_radius": {
+        "point_mass": 0.6976308765119184,
+        "nfw": null,
+        "expected": 1.6,
+        "point_mass_error": 0.563980702180051
+      },
+      "deflection_tests": [
+        {
+          "radius": 0.8,
+          "deflection": 66.84113185217822,
+          "relative_error": null
+        },
+        {
+          "radius": 1.6,
+          "deflection": 27.84218281942107,
+          "relative_error": null
+        },
+        {
+          "radius": 3.2,
+          "deflection": 11.150398148887941,
+          "relative_error": null
+        },
+        {
+          "radius": 8.0,
+          "deflection": 3.03313128592032,
+          "relative_error": null
+        }
+      ],
+      "kappa_tests": [
+        {
+          "radius": 0.8,
+          "kappa": 0.003217474215492913
+        },
+        {
+          "radius": 1.6,
+          "kappa": 0.0027375839205300884
+        },
+        {
+          "radius": 3.2,
+          "kappa": 0.00225944123506968
+        },
+        {
+          "radius": 8.0,
+          "kappa": 0.0016366910778018503
+        }
+      ],
+      "psi_tests": [
+        {
+          "radius": 0.8,
+          "psi": 0.002280992076632918
+        },
+        {
+          "radius": 1.6,
+          "psi": 0.007894520072052805
+        },
+        {
+          "radius": 3.2,
+          "psi": 0.026670049995456833
+        },
+        {
+          "radius": 8.0,
+          "psi": 0.12647308657571601
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "n_systems": 5,
+    "point_mass_einstein": {
+      "mean_error": 0.32775034582040463,
+      "max_error": 0.563980702180051
+    },
+    "nfw_einstein_radii": []
+  }
+}

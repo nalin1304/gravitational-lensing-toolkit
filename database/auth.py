@@ -7,7 +7,7 @@ Author: Phase 12 Implementation
 Date: October 2025
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict
 from passlib.context import CryptContext
 from jose import JWTError, jwt
@@ -98,9 +98,9 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     """
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     
     to_encode.update({"exp": expire, "type": "access"})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -118,7 +118,7 @@ def create_refresh_token(data: dict) -> str:
         str: Encoded JWT refresh token
     """
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    expire = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     to_encode.update({"exp": expire, "type": "refresh"})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -241,7 +241,7 @@ async def get_current_user(
         )
     
     # Update last login
-    user.last_login = datetime.utcnow()
+    user.last_login = datetime.now(timezone.utc)
     db.commit()
     
     return user
@@ -287,7 +287,7 @@ async def get_user_from_api_key(api_key: str, db: Session) -> User:
         )
     
     # Check expiration
-    if api_key_obj.expires_at and api_key_obj.expires_at < datetime.utcnow():
+    if api_key_obj.expires_at and api_key_obj.expires_at < datetime.now(timezone.utc):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="API key has expired"
@@ -302,7 +302,7 @@ async def get_user_from_api_key(api_key: str, db: Session) -> User:
         )
     
     # Update last used
-    api_key_obj.last_used = datetime.utcnow()
+    api_key_obj.last_used = datetime.now(timezone.utc)
     db.commit()
     
     return user
@@ -452,7 +452,7 @@ def create_api_key(
     # Set expiration
     expires_at = None
     if expires_days:
-        expires_at = datetime.utcnow() + timedelta(days=expires_days)
+        expires_at = datetime.now(timezone.utc) + timedelta(days=expires_days)
     
     # Create API key object
     api_key = ApiKey(

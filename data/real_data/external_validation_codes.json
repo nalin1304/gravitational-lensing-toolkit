@@ -1,0 +1,47 @@
+{
+  "lenstool": {
+    "name": "Lenstool",
+    "url": "https://lenstool.iap.fr/",
+    "description": "Gravitational lens modeling software",
+    "purpose": "Mass modeling, ray tracing, time delays",
+    "validation_type": "forward",
+    "language": "Fortran",
+    "reference": "Kneib et al. 1996, ApJ, 471, 643"
+  },
+  "glafic": {
+    "name": "GLAFIC",
+    "url": "http://www.astro.utokyo.ac.jp/~k.oguri/research/glafic/",
+    "description": "Gravitational Lensing Analysis Code",
+    "purpose": "Lens modeling, image positions, magnifications",
+    "validation_type": "forward",
+    "language": "C/Fortran",
+    "reference": "Oguri 2007, ApJ, 660, 1"
+  },
+  "lensmodel": {
+    "name": "LensModel",
+    "url": "https://www.astro.caltech.edu/~arjen/lensmodel.html",
+    "description": "Adaptive grid lens modeling",
+    "purpose": "Mass profiles, time delays, flux ratios",
+    "validation_type": "hybrid",
+    "language": "Fortran",
+    "reference": "Keeton 2001"
+  },
+  "piemd": {
+    "name": "PIEMD",
+    "url": "http://www.iap.fr/users/taillet/piemd.html",
+    "description": "Pseudo-Isothermal Elliptical Mass Distribution",
+    "purpose": "Galaxy lens modeling",
+    "validation_type": "analytical",
+    "language": "Fortran",
+    "reference": "Mellier et al. 1993"
+  },
+  "poppy": {
+    "name": "POPPY",
+    "url": "https://poppy.readthedocs.io/",
+    "description": "Physical Optics Propagation for JWST",
+    "purpose": "Wavefront imaging simulations",
+    "validation_type": "wave_optics",
+    "language": "Python",
+    "reference": "Perrin et al. 2012"
+  }
+}

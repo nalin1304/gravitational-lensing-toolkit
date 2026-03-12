@@ -14,9 +14,12 @@ from typing import Dict, List, Tuple, Optional, Union
 from dataclasses import dataclass, field
 from enum import Enum
 import warnings
+import logging
 from scipy import stats, optimize
 from skimage.metrics import structural_similarity as ssim
 from skimage.metrics import peak_signal_noise_ratio as psnr
+
+logger = logging.getLogger(__name__)
 
 # Use built-in implementations to avoid circular imports
 BENCHMARKS_AVAILABLE = False
