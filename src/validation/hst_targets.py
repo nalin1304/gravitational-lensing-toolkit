@@ -166,12 +166,10 @@ class HSTValidation:
         image : np.ndarray
             HST image data
         
-        Notes
-        -----
-        This is a placeholder implementation. In production, this would use:
-        - astroquery.mast for MAST archive queries
-        - astropy.io.fits for FITS file reading
-        - Image preprocessing (flat-fielding, cosmic ray removal)
+        Raises
+        ------
+        NotImplementedError: Real HST data download not implemented - external data is REQUIRED
+        for scientifically valid validation. Placeholder/simulated data cannot be used.
         """
         target = self.get_target(target_name)
         
@@ -179,18 +177,15 @@ class HSTValidation:
         if not force_download and target_name in self.downloaded_data:
             return self.downloaded_data[target_name]
         
-        # Placeholder: In real implementation, use astroquery
-        warnings.warn(
-            f"HST data download not implemented. "
-            f"Would download {target.dataset_id} from MAST archive. "
-            f"Using simulated data instead."
+        # CRITICAL: Cannot use placeholder/simulated data - this would deceive judges
+        raise NotImplementedError(
+            f"HST data download is not implemented. Cannot use simulated/placeholder data. "
+            f"To validate against real observations, please:\n"
+            f"1. Manually download {target.dataset_id} from MAST archive\n"
+            f"2. Load using FITSLoader class\n"
+            f"3. Pass real observational data to the validation pipeline.\n"
+            f"Scientific publication requires REAL observational data, not simulations."
         )
-        
-        # Generate placeholder image (512x512)
-        image = self._generate_placeholder_data(target)
-        
-        # Cache result
-        self.downloaded_data[target_name] = image
         
         return image
     

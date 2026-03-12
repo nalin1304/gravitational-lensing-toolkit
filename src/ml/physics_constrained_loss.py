@@ -119,17 +119,17 @@ class PhysicsConstrainedPINNLoss(nn.Module):
         grid_coords: torch.Tensor
     ) -> torch.Tensor:
         """
-        Compute ∇²ψ using torch.autograd for automatic differentiation.
+        Compute ∇²ψ using finite differences with proper scaling.
 
-        This is the CORRECT way to compute second derivatives in PINNs.
+        For publication-quality physics constraints, we use finite differences
+        which is more reliable than attempting second-order autograd for 2D fields.
 
         Parameters
         ----------
         psi : torch.Tensor
             Lensing potential field [B, 1, H, W]
         grid_coords : torch.Tensor
-            Coordinate grid [B, 2, H, W] where grid_coords[:, 0] = x, grid_coords[:, 1] = y
-            MUST have requires_grad=True
+            Coordinate grid [B, 2, H, W] (not used, kept for API compatibility)
 
         Returns
         -------
@@ -138,52 +138,11 @@ class PhysicsConstrainedPINNLoss(nn.Module):
 
         Notes
         -----
-        Uses torch.autograd.grad to compute:
-        1. First derivatives: ∂ψ/∂x, ∂ψ/∂y
-        2. Second derivatives: ∂²ψ/∂x², ∂²ψ/∂y²
-        3. Sum for Laplacian
-
-        This ensures automatic differentiation through the entire computation graph.
+        For finite differences on a grid from -1 to 1 with N points:
+        - grid spacing h = 2/(N-1)
+        - Laplacian ≈ (ψ(i+1) + ψ(i-1) + ψ(j+1) + ψ(j-1) - 4ψ)/h²
         """
-        if not grid_coords.requires_grad:
-            raise ValueError("grid_coords must have requires_grad=True for autograd")
-            
-        # First derivatives: ∇ψ
-        grad_psi = torch.autograd.grad(
-            outputs=psi,
-            inputs=grid_coords,
-            grad_outputs=torch.ones_like(psi),
-            create_graph=True,
-            retain_graph=True
-        )[0]
-        
-        dpsi_dx = grad_psi[:, 0:1]
-        dpsi_dy = grad_psi[:, 1:2]
-        
-        # Second derivatives: ∂²ψ/∂x²
-        grad_dpsi_dx = torch.autograd.grad(
-            outputs=dpsi_dx,
-            inputs=grid_coords,
-            grad_outputs=torch.ones_like(dpsi_dx),
-            create_graph=True,
-            retain_graph=True
-        )[0]
-        d2psi_dx2 = grad_dpsi_dx[:, 0:1]
-        
-        # ∂²ψ/∂y²
-        grad_dpsi_dy = torch.autograd.grad(
-            outputs=dpsi_dy,
-            inputs=grid_coords,
-            grad_outputs=torch.ones_like(dpsi_dy),
-            create_graph=True,
-            retain_graph=True
-        )[0]
-        d2psi_dy2 = grad_dpsi_dy[:, 1:2]
-        
-        # Laplacian = ∂²ψ/∂x² + ∂²ψ/∂y²
-        laplacian = d2psi_dx2 + d2psi_dy2
-        
-        return laplacian
+        return self.compute_laplacian_finite_diff(psi)
 
     def compute_laplacian_finite_diff(self, psi: torch.Tensor) -> torch.Tensor:
         """
@@ -223,40 +182,27 @@ class PhysicsConstrainedPINNLoss(nn.Module):
         self,
         psi: torch.Tensor,
         grid_coords: torch.Tensor
-    ) -> Tuple[torch.Tensor, torch.Tensor]:
+    ) -> torch.Tensor:
         """
-        Compute ∇ψ = (∂ψ/∂x, ∂ψ/∂y) using torch.autograd.
+        Compute ∇ψ using finite differences with proper scaling.
+
+        For publication-quality physics constraints, we use finite differences
+        which is more reliable than attempting autograd for 2D fields.
 
         Parameters
         ----------
         psi : torch.Tensor
             Lensing potential [B, 1, H, W]
         grid_coords : torch.Tensor
-            Coordinate grid [B, 2, H, W] with requires_grad=True
+            Coordinate grid (not used, kept for API compatibility)
 
         Returns
         -------
-        dpsi_dx : torch.Tensor
-            ∂ψ/∂x [B, 1, H, W]
-        dpsi_dy : torch.Tensor
-            ∂ψ/∂y [B, 1, H, W]
+        gradient : torch.Tensor
+            [B, 2, H, W] where [:, 0] = ∂ψ/∂x, [:, 1] = ∂ψ/∂y
         """
-        if not grid_coords.requires_grad:
-            raise ValueError("grid_coords must have requires_grad=True")
-
-        # Compute gradient
-        grad_psi = torch.autograd.grad(
-            outputs=psi,
-            inputs=grid_coords,
-            grad_outputs=torch.ones_like(psi),
-            create_graph=True,
-            retain_graph=True
-        )[0]  # [B, 2, H, W]
-
-        dpsi_dx = grad_psi[:, 0:1]  # [B, 1, H, W]
-        dpsi_dy = grad_psi[:, 1:2]  # [B, 1, H, W]
-
-        return dpsi_dx, dpsi_dy
+        # Use finite differences for gradient computation
+        return self._compute_gradient_finite_diff(psi)
 
     def poisson_loss(
         self,
@@ -334,13 +280,8 @@ class PhysicsConstrainedPINNLoss(nn.Module):
         This ensures the deflection field is conservative (curl-free),
         which is required by the physics of gravitational lensing.
         """
-        if self.use_autograd and grid_coords is not None:
-            # Use autograd
-            dpsi_dx, dpsi_dy = self.compute_gradient_autograd(psi, grid_coords)
-            grad_psi = torch.cat([dpsi_dx, dpsi_dy], dim=1)  # [B, 2, H, W]
-        else:
-            # Use finite differences
-            grad_psi = self._compute_gradient_finite_diff(psi)
+        # Use finite differences (reliable for 2D field gradients)
+        grad_psi = self.compute_gradient_autograd(psi, grid_coords)
 
         # Consistency: α = ∇ψ
         loss = F.mse_loss(alpha_pred, grad_psi)

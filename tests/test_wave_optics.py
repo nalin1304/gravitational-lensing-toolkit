@@ -50,6 +50,7 @@ class TestWaveOpticsEngine:
         """Test that compute_amplification_factor runs without errors."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             source_position=(0.5, 0.0),
             wavelength=500.0,
             grid_size=128,  # Small for speed
@@ -66,6 +67,7 @@ class TestWaveOpticsEngine:
         grid_size = 64
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             wavelength=500.0,
             grid_size=grid_size,
             grid_extent=2.0
@@ -79,6 +81,7 @@ class TestWaveOpticsEngine:
         """Test that amplitude map (intensity) is non-negative."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             wavelength=500.0,
             grid_size=128,
             grid_extent=2.0
@@ -91,6 +94,7 @@ class TestWaveOpticsEngine:
         """Test that phase map is in valid range [-π, π]."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             wavelength=500.0,
             grid_size=128,
             grid_extent=2.0
@@ -105,6 +109,7 @@ class TestWaveOpticsEngine:
         wavelength = 632.8  # He-Ne laser
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             wavelength=wavelength,
             grid_size=64,
             grid_extent=2.0
@@ -116,6 +121,7 @@ class TestWaveOpticsEngine:
         """Test that grid coordinates are returned."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             wavelength=500.0,
             grid_size=64,
             grid_extent=3.0
@@ -147,6 +153,7 @@ class TestPointMassWaveOptics:
         """Test that point mass shows interference fringes near Einstein ring."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             source_position=(0.0, 0.0),  # On-axis source
             wavelength=500.0,
             grid_size=256,
@@ -164,6 +171,7 @@ class TestPointMassWaveOptics:
         """Test wave optics with off-axis source."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             source_position=(0.5, 0.0),
             wavelength=500.0,
             grid_size=128,
@@ -194,6 +202,7 @@ class TestNFWWaveOptics:
         """Test that wave optics works with NFW profile."""
         result = wave_engine.compute_amplification_factor(
             nfw_lens,
+            lens_system=nfw_lens.lens_system,
             source_position=(0.5, 0.0),
             wavelength=500.0,
             grid_size=128,
@@ -207,6 +216,7 @@ class TestNFWWaveOptics:
         """Test that NFW shows extended structure in wave optics."""
         result = wave_engine.compute_amplification_factor(
             nfw_lens,
+            lens_system=nfw_lens.lens_system,
             source_position=(0.5, 0.0),
             wavelength=500.0,
             grid_size=128,
@@ -238,6 +248,7 @@ class TestGeometricComparison:
         """Test that geometric comparison is included when requested."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             wavelength=500.0,
             grid_size=128,
             grid_extent=2.0,
@@ -252,6 +263,7 @@ class TestGeometricComparison:
         """Test that geometric comparison can be excluded."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             wavelength=500.0,
             grid_size=128,
             grid_extent=2.0,
@@ -264,6 +276,7 @@ class TestGeometricComparison:
         """Test the compare_with_geometric method."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             wavelength=500.0,
             grid_size=128,
             grid_extent=2.0,
@@ -282,6 +295,7 @@ class TestGeometricComparison:
         grid_size = 128
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             wavelength=500.0,
             grid_size=grid_size,
             grid_extent=2.0,
@@ -314,6 +328,7 @@ class TestLongWavelengthLimit:
         # Compute at very long wavelength (radio)
         result_long = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             source_position=(0.5, 0.0),
             wavelength=1e6,  # 1 mm = 10^6 nm (radio)
             grid_size=128,
@@ -333,6 +348,7 @@ class TestLongWavelengthLimit:
         # Compute at optical wavelength
         result_short = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             source_position=(0.5, 0.0),
             wavelength=500.0,  # 500 nm (optical)
             grid_size=128,
@@ -363,6 +379,7 @@ class TestFringeDetection:
         """Test that detect_fringes runs without error."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             source_position=(0.0, 0.0),  # On-axis for clear fringes
             wavelength=500.0,
             grid_size=256,
@@ -383,6 +400,7 @@ class TestFringeDetection:
         """Test that detected fringe spacing is positive."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             source_position=(0.0, 0.0),
             wavelength=500.0,
             grid_size=256,
@@ -403,6 +421,7 @@ class TestFringeDetection:
         """Test that fringe contrast is in valid range [0, 1]."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             wavelength=500.0,
             grid_size=256,
             grid_extent=3.0
@@ -422,6 +441,7 @@ class TestFringeDetection:
         # Compute at two wavelengths
         result_400 = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             source_position=(0.0, 0.0),
             wavelength=400.0,
             grid_size=256,
@@ -430,6 +450,7 @@ class TestFringeDetection:
         
         result_900 = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             source_position=(0.0, 0.0),
             wavelength=900.0,  # 2.25x wavelength
             grid_size=256,
@@ -476,6 +497,7 @@ class TestEnergyConservation:
         """Test that total flux is conserved in wave optics."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             source_position=(0.5, 0.0),
             wavelength=500.0,
             grid_size=256,
@@ -515,6 +537,7 @@ class TestVisualization:
         """Test that plot_interference_pattern runs without error."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             wavelength=500.0,
             grid_size=128,
             grid_extent=2.0
@@ -530,6 +553,7 @@ class TestVisualization:
         # Should not raise error
         fig = plot_wave_vs_geometric(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             source_position=(0.5, 0.0),
             wavelength=500.0,
             grid_size=128,
@@ -558,6 +582,7 @@ class TestEdgeCases:
         """Test with very short wavelength (X-ray)."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             wavelength=1.0,  # 1 nm (X-ray)
             grid_size=64,
             grid_extent=2.0
@@ -569,6 +594,7 @@ class TestEdgeCases:
         """Test with very long wavelength (radio)."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             wavelength=1e8,  # 0.1 m (radio)
             grid_size=64,
             grid_extent=2.0
@@ -580,6 +606,7 @@ class TestEdgeCases:
         """Test with small grid size."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             wavelength=500.0,
             grid_size=32,  # Small grid
             grid_extent=2.0
@@ -591,6 +618,7 @@ class TestEdgeCases:
         """Test with large grid extent."""
         result = wave_engine.compute_amplification_factor(
             point_mass_lens,
+            lens_system=point_mass_lens.lens_system,
             wavelength=500.0,
             grid_size=128,
             grid_extent=10.0  # Large extent

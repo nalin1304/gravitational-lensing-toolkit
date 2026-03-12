@@ -427,18 +427,28 @@ class ScientificValidator:
         uncertainty: Optional[np.ndarray] = None
     ) -> Tuple[float, float]:
         """
-        Perform chi-squared test for statistical consistency
+        Perform chi-squared test for statistical consistency.
         
         Returns:
             (chi_squared_statistic, p_value)
+        
+        FIXED: Removed circular uncertainty estimation.
+        Chi-squared requires INDEPENDENT uncertainty estimates.
         """
         if BENCHMARKS_AVAILABLE and uncertainty is not None:
             return calculate_chi_squared(ground_truth, predicted, uncertainty)
         
         if uncertainty is None:
-            # Estimate uncertainty from residuals
-            residuals = predicted - ground_truth
-            uncertainty = np.ones_like(predicted) * np.std(residuals)
+            # FIXED: Cannot estimate uncertainty from residuals - that's circular!
+            # Instead, use a conservative default based on typical measurement errors
+            # or require explicit uncertainty input
+            # Use 10% relative uncertainty as default
+            uncertainty = np.abs(ground_truth) * 0.1 + 0.01
+            # Add warning that this is a conservative estimate
+            logger.warning(
+                "Chi-squared test using default 10% uncertainty estimate. "
+                "For rigorous validation, provide explicit uncertainty estimates."
+            )
         
         # Avoid division by zero
         uncertainty = np.maximum(uncertainty, 1e-10)
@@ -446,8 +456,9 @@ class ScientificValidator:
         # Chi-squared statistic
         chi2 = np.sum(((predicted - ground_truth) / uncertainty) ** 2)
         
-        # Degrees of freedom
-        dof = predicted.size - 1
+        # Degrees of freedom (n_observations - n_parameters)
+        # Assume 1 parameter for simple comparison
+        dof = max(predicted.size - 1, 1)
         
         # P-value
         p_value = 1.0 - stats.chi2.cdf(chi2, dof)

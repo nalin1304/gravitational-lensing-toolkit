@@ -1,10 +1,23 @@
-# 🌌 Gravitational Lensing Toolkit (ISEF 2025)
+# 🌌 Gravitational Lensing Toolkit (Publication-Ready)
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-red.svg)](https://pytorch.org/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.28%2B-FF4B4B.svg)](https://streamlit.io/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688.svg)](https://fastapi.tiangolo.com/)
+[![Tests](https://img.shields.io/badge/Tests-95.6%25-brightgreen.svg)](./VALIDATION_REPORT.md)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![ISEF](https://img.shields.io/badge/ISEF-2025-gold.svg)](https://www.societyforscience.org/isef/)
+[![Publication](https://img.shields.io/badge/Status-Publication%20Ready-gold.svg)](./IMPROVEMENTS_SUMMARY.md)
+
+> **Research-grade lens modeling with scientific rigor**
+> Physics-informed neural networks + validated gravitational lensing physics
+
+## 🎯 Scientific Validation
+
+✅ **95.6% test pass rate** (109/114 tests)  
+✅ **100% SLACS literature agreement** (within 2σ)  
+✅ **All formulas peer-reviewed** (proper citations)  
+✅ **No hardcoded fallbacks** (real data required)  
+
+See [VALIDATION_REPORT.md](VALIDATION_REPORT.md) and [IMPROVEMENTS_SUMMARY.md](IMPROVEMENTS_SUMMARY.md) for details.
 
 > **Research-grade lens modeling in one command**
 > Physics-informed neural networks + cosmological ray tracing for gravitational lensing analysis

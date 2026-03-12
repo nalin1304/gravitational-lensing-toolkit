@@ -189,11 +189,12 @@ class TestPhysicsInformedLoss:
         true_classes = torch.randint(0, 3, (batch_size,))
         images = torch.randn(batch_size, 1, 64, 64)
         
-        # Compute loss
+        # Compute loss - provide required cosmological parameters
         losses = physics_informed_loss(
             pred_params, true_params,
             pred_classes, true_classes,
-            images, lambda_physics=0.1
+            images, lambda_physics=0.1,
+            z_lens=0.5, z_source=2.0, Omega_m=0.3
         )
         
         # Check all components exist
@@ -226,11 +227,12 @@ class TestPhysicsInformedLoss:
         true_classes = torch.randint(0, 3, (batch_size,))
         images = torch.randn(batch_size, 1, 64, 64)
         
-        # Compute loss
+        # Compute loss - provide required cosmological parameters
         losses = physics_informed_loss(
             pred_params, true_params,
             pred_classes, true_classes,
-            images, lambda_physics=0.1
+            images, lambda_physics=0.1,
+            z_lens=0.5, z_source=2.0, Omega_m=0.3
         )
         
         # MSE should be zero (perfect parameter prediction)
@@ -279,11 +281,12 @@ class TestPINNModel:
         # Forward pass
         pred_params, pred_classes = model(images)
         
-        # Compute loss
+        # Compute loss - provide required cosmological parameters
         losses = physics_informed_loss(
             pred_params, true_params,
             pred_classes, true_classes,
-            images, lambda_physics=0.1
+            images, lambda_physics=0.1,
+            z_lens=0.5, z_source=2.0, Omega_m=0.3
         )
         
         # Backward pass

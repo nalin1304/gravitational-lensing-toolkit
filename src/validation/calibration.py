@@ -179,13 +179,25 @@ class SyntheticDataCalibrator:
             z_source=lit["z_source"],
         )
 
-        # Compute calibration factors
-        radius_factor = lit["einstein_radius_arcsec"] / raw_theta_e
-        mass_factor = lit["lens_mass_msun"] / raw_mass
-
-        # Apply calibration
-        calibrated_theta_e = raw_theta_e * radius_factor
-        calibrated_mass = raw_mass * mass_factor
+        # FIXED: Use holdout-based calibration instead of trivial self-calibration
+        # For proper calibration, we compute factors from OTHER systems (holdout)
+        # and apply to this system - this tests generalization ability
+        
+        # For single-system calibration, we report raw errors only
+        # (self-calibration would be scientifically meaningless)
+        calibration_factors = self._get_calibration_factors()
+        
+        if calibration_factors is not None:
+            # Apply calibration factors derived from OTHER systems
+            radius_factor, mass_factor = calibration_factors
+            calibrated_theta_e = raw_theta_e * radius_factor
+            calibrated_mass = raw_mass * mass_factor
+        else:
+            # No calibration available - report raw results with note
+            radius_factor = 1.0
+            mass_factor = 1.0
+            calibrated_theta_e = raw_theta_e
+            calibrated_mass = raw_mass
 
         # Compute errors
         raw_radius_error = abs(raw_theta_e - lit["einstein_radius_arcsec"]) / lit["einstein_radius_arcsec"] * 100
@@ -216,11 +228,39 @@ class SyntheticDataCalibrator:
         logger.info(
             f"Calibration complete: {system_key}\n"
             f"  Raw error: {raw_radius_error:.2f}%\n"
-            f"  Calibrated error: {cal_radius_error:.2f}%\n"
-            f"  Calibration factor: {radius_factor:.4f}"
+            f"  Calibrated error: {cal_radius_error:.2f}%"
         )
 
         return result
+
+    def _get_calibration_factors(self):
+        """
+        Get calibration factors from OTHER calibration systems (holdout method).
+        
+        This is the scientifically correct approach - derive calibration factors
+        from independent systems, then apply to new systems.
+        
+        Returns None if insufficient data for calibration.
+        """
+        if len(self.calibration_results) < 3:
+            # Need at least 3 other systems for meaningful calibration
+            return None
+        
+        # Compute average calibration factors from completed systems
+        radius_factors = []
+        mass_factors = []
+        
+        for result in self.calibration_results.values():
+            if result.raw_einstein_radius > 0 and result.raw_mass > 0:
+                radius_factors.append(result.true_einstein_radius / result.raw_einstein_radius)
+                mass_factors.append(result.true_mass / result.raw_mass)
+        
+        if len(radius_factors) < 2:
+            return None
+        
+        # Use median to be robust against outliers
+        import statistics
+        return statistics.median(radius_factors), statistics.median(mass_factors)
 
     def _generate_synthetic_analog(
         self,
