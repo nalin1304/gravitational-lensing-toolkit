@@ -329,7 +329,11 @@ class SyntheticDataCalibrator:
                 radius_pixels = np.sqrt(len(half_max_indices[0]) / np.pi)
                 theta_e_arcsec = radius_pixels * pixel_scale
             else:
-                theta_e_arcsec = 1.0  # Fallback
+                raise ValueError(
+                    "Cannot estimate Einstein radius: convergence map does not contain "
+                    "values above half-maximum. The lens model may be invalid or the "
+                    "field of view too small to capture the lens mass distribution."
+                )
 
         # Estimate mass from Einstein radius
         # For SIS: θ_E = 4π (σ_v/c)² (D_LS/D_S)

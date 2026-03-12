@@ -357,8 +357,32 @@ class NFWProfile(MassProfile):
         ellipticity_angle: float = 0.0,
         include_subhalos: bool = False,
         subhalo_fraction: float = 0.05,
+        apply_inner_slope_correction: bool = False,
     ):
-        """Initialize NFW profile."""
+        """
+        Initialize NFW profile.
+        
+        Parameters
+        ----------
+        M_vir : float
+            Virial mass in solar masses
+        concentration : float
+            NFW concentration parameter c = r_vir / r_s
+        lens_system : LensSystem
+            Object containing lens and source redshifts and cosmology
+        ellipticity : float
+            Ellipticity (0 = circular, 0.99 = highly elliptical)
+        ellipticity_angle : float
+            Position angle of major axis in degrees
+        include_subhalos : bool
+            Whether to include dark matter subhalo population
+        subhalo_fraction : float
+            Fraction of virial mass in subhalos (typically 0.01-0.1)
+        apply_inner_slope_correction : bool
+            If True, apply redshift-dependent inner slope correction from
+            Sheu et al. (2024) arXiv:2408.10316. Default is False to preserve
+            standard NFW behavior. Only affects high-z lenses (z > 0.4).
+        """
         self.M_vir = M_vir
         self.c = concentration
         self.lens_system = lens_system
@@ -373,6 +397,9 @@ class NFWProfile(MassProfile):
         self.include_subhalos = include_subhalos
         self.subhalo_fraction = np.clip(subhalo_fraction, 0.0, 0.2)
         self.subhalos = []
+        
+        # Inner slope correction flag
+        self._apply_inner_slope_correction = apply_inner_slope_correction
 
         # Calculate scale radius and density
         self._compute_nfw_parameters()
@@ -426,12 +453,15 @@ class NFWProfile(MassProfile):
         # Apply redshift-dependent inner slope correction (Sheu et al. 2024)
         # Reference: Sheu et al. (2024), "Project Dinos II: Redshift evolution of dark matter
         # density profiles", MNRAS, 534, 3269, arXiv:2408.10316
+        # 
+        # NOTE: This correction is OPTIONAL (off by default) to preserve standard NFW behavior.
+        # Enable with apply_inner_slope_correction=True when comparing to high-z observations.
         z_lens = self.lens_system.z_l
 
         # Inner slope evolution: dlog(γ_in)/dz = -0.44
         # At z ~ 0.35, NFW is valid (γ_in = 1.0)
         # At z >= 0.49, shallower profiles preferred (>2σ tension)
-        if z_lens > 0.4:
+        if self._apply_inner_slope_correction and z_lens > 0.4:
             # Compute slope correction
             # γ_in(z) = γ_0 × (1 + z)^(-0.44)
             # where γ_0 = 1.0 (NFW value at z ~ 0)
@@ -487,7 +517,13 @@ class NFWProfile(MassProfile):
             M_sub = M_min * (M_max / M_min) ** u
 
         # Normalize so total mass = M_sub_total
-        M_sub = M_sub * (M_sub_total / M_sub.sum())
+        # Guard against division by zero (shouldn't happen but be safe)
+        mass_sum = M_sub.sum()
+        if mass_sum > 0:
+            M_sub = M_sub * (M_sub_total / mass_sum)
+        else:
+            # Edge case: all masses invalid, use uniform distribution
+            M_sub = np.full(N_sub, M_sub_total / N_sub)
 
         # Virial radius for spatial distribution
         D_l = self.lens_system.angular_diameter_distance_lens().to(u.Mpc).value
@@ -615,8 +651,11 @@ class NFWProfile(MassProfile):
 
         For NFW profile:
         Σ(x) = 2ρ_s r_s × g(x)
-        where g(x) = [1 - 1/√(1-x²) × ln((1+√(1-x²))/(1-√(1-x²)))] / x²  for x < 1
-              = [1 - 1/√(x²-1) × arctan(√(x²-1))] / x²                    for x > 1
+        where g(x) = [1 - (2/√(1-x²)) × arctanh(√((1-x)/(1+x)))] / (x² - 1)  for x < 1
+              g(x) = [1 - (2/√(x²-1)) × arctan(√((x-1)/(x+1)))] / (x² - 1)    for x > 1
+        
+        Note: The formula uses (x² - 1) in the denominator, NOT x².
+        This corrects an earlier bug that erroneously included ln(x/2).
 
         Parameters
         ----------
@@ -636,31 +675,31 @@ class NFWProfile(MassProfile):
             x1 = x[mask1]
             sqrt_term = np.sqrt(1 - x1**2)
             # Handle edge cases
-            sqrt_term = np.where(sqrt_term < 1e-10, 1e-10, sqrt_term)
-            # g(x) = [ln(x/2) + 2/√(1-x²) × arctanh(√((1-x)/(1+x)))] / x²
-            # This is equivalent to: [1 - 1/√(1-x²) × ln((1+√(1-x²))/(1-√(1-x²)))] / x²
+            sqrt_term = np.maximum(sqrt_term, 1e-10)
+            # Correct formula: g(x) = [1 - (2/√(1-x²)) × arctanh(√((1-x)/(1+x)))] / (x² - 1)
             arg = np.sqrt((1 - x1) / (1 + x1))
-            arg = np.where(arg < 1e-10, 1e-10, arg)
+            arg = np.maximum(arg, 1e-10)
             arctanh_arg = np.arctanh(arg)
-            # Use the log form which is more stable
-            g[mask1] = (np.log(x1 / 2) + 2 / sqrt_term * arctanh_arg) / x1**2
+            # Note: x² - 1 is negative for x < 1, giving positive result
+            denom = x1**2 - 1  # negative for x < 1
+            g[mask1] = (1.0 - (2.0 / sqrt_term) * arctanh_arg) / denom
 
         # Case x > 1 (outer region)
         mask2 = x > 1
         if np.any(mask2):
             x2 = x[mask2]
             sqrt_term = np.sqrt(x2**2 - 1)
-            sqrt_term = np.where(sqrt_term < 1e-10, 1e-10, sqrt_term)
-            # g(x) = [ln(x/2) + 2/√(x²-1) × arctan(√((x-1)/(x+1)))] / x²
+            sqrt_term = np.maximum(sqrt_term, 1e-10)
+            # Correct formula: g(x) = [1 - (2/√(x²-1)) × arctan(√((x-1)/(x+1)))] / (x² - 1)
             arg = np.sqrt((x2 - 1) / (x2 + 1))
-            arg = np.where(arg < 1e-10, 1e-10, arg)
             arctan_arg = np.arctan(arg)
-            g[mask2] = (np.log(x2 / 2) + 2 / sqrt_term * arctan_arg) / x2**2
+            denom = x2**2 - 1  # positive for x > 1
+            g[mask2] = (1.0 - (2.0 / sqrt_term) * arctan_arg) / denom
 
-        # Case x = 1 (Einstein radius) - use limit
+        # Case x = 1 (scale radius) - use L'Hôpital limit: g(1) = 1/3
         mask3 = np.isclose(x, 1.0, rtol=1e-6)
         if np.any(mask3):
-            g[mask3] = 1.0  # Limit value
+            g[mask3] = 1.0 / 3.0  # Correct limit value at x=1
 
         return g
 

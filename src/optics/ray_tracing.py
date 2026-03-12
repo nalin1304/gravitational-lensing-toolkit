@@ -105,7 +105,12 @@ def ray_trace(source_position: Tuple[float, float],
             if len(x_indices) > 0:
                 # Weighted centroid using inverse distance
                 weights = 1.0 / (distance_to_source[img_pixels] + 1e-10)
-                weights /= weights.sum()
+                weights_sum = weights.sum()
+                if weights_sum > 1e-10:
+                    weights /= weights_sum
+                else:
+                    # Uniform weights if sum is too small
+                    weights = np.ones_like(weights) / len(weights)
                 
                 x_centroid = np.sum(x[x_indices] * weights)
                 y_centroid = np.sum(y[y_indices] * weights)

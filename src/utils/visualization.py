@@ -373,7 +373,10 @@ def plot_magnification_map(lens_model,
             try:
                 mag_map[i, j] = compute_magnification(xx[i, j], yy[i, j], 
                                                       lens_model, dx)
-            except Exception:
+            except Exception as e:
+                # Log specific failures for debugging
+                import logging
+                logging.debug(f"Magnification computation failed at ({xx[i,j]:.3f}, {yy[i,j]:.3f}): {e}")
                 mag_map[i, j] = np.nan
     
     # Plot with symmetric log scale

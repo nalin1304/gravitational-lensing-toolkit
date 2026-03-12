@@ -93,13 +93,16 @@ class ArrayBackend:
             return np.asarray(array)
 
 
-# Global backend instance
+# Global backend instance with thread safety
+import threading as _backend_threading
+_backend_lock = _backend_threading.RLock()
 _global_backend = ArrayBackend(use_gpu=True)
 
 
 def get_backend() -> ArrayBackend:
     """Get global array backend."""
-    return _global_backend
+    with _backend_lock:
+        return _global_backend
 
 
 def set_backend(use_gpu: bool = True):
@@ -112,7 +115,8 @@ def set_backend(use_gpu: bool = True):
         Whether to use GPU if available
     """
     global _global_backend
-    _global_backend = ArrayBackend(use_gpu=use_gpu)
+    with _backend_lock:
+        _global_backend = ArrayBackend(use_gpu=use_gpu)
 
 
 def timer(func: Callable) -> Callable:
@@ -308,13 +312,22 @@ def compare_cpu_gpu_performance(lens_model, grid_size: int = 128) -> Dict[str, f
     return results
 
 
-# Cache for repeated calculations
-_convergence_cache = {}
+# Cache for repeated calculations with size limit to prevent memory leaks
+# Using ordered dict for LRU-style eviction
+from collections import OrderedDict
+import threading
+
+_convergence_cache: OrderedDict = OrderedDict()
+_cache_lock = threading.RLock()
+_MAX_CACHE_SIZE = 100  # Maximum number of cached convergence maps
 
 
 def cached_convergence(lens_model, grid_size: int = 64, extent: float = 3.0):
     """
     Generate convergence map with caching.
+    
+    Uses LRU-style caching with a maximum size to prevent memory leaks.
+    Thread-safe for concurrent access.
     
     Parameters
     ----------
@@ -340,15 +353,29 @@ def cached_convergence(lens_model, grid_size: int = 64, extent: float = 3.0):
         extent
     )
     
-    if key not in _convergence_cache:
-        _convergence_cache[key] = generate_convergence_map_vectorized(
-            lens_model, grid_size=grid_size, extent=extent
-        )
+    with _cache_lock:
+        if key in _convergence_cache:
+            # Move to end (most recently used)
+            _convergence_cache.move_to_end(key)
+            return _convergence_cache[key]
     
-    return _convergence_cache[key]
+    # Compute outside lock (expensive operation)
+    result = generate_convergence_map_vectorized(
+        lens_model, grid_size=grid_size, extent=extent
+    )
+    
+    with _cache_lock:
+        # Evict oldest entries if cache is full
+        while len(_convergence_cache) >= _MAX_CACHE_SIZE:
+            _convergence_cache.popitem(last=False)  # Remove oldest
+        
+        _convergence_cache[key] = result
+    
+    return result
 
 
 def clear_cache():
     """Clear convergence map cache."""
     global _convergence_cache
-    _convergence_cache.clear()
+    with _cache_lock:
+        _convergence_cache.clear()

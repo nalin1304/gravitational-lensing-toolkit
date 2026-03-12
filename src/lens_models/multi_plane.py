@@ -224,20 +224,15 @@ class MultiPlaneLens:
             alpha_x, alpha_y = plane.profile.deflection_angle(rel_x, rel_y)
             alpha_i = np.stack([alpha_x, alpha_y], axis=-1)
             
-            # Compute deflection weight: D_is / D_s
-            # For planes beyond this one, compute proper distances
-            if i < len(self.planes) - 1:
-                # Distance from this plane to next plane
-                next_plane = self.planes[i + 1]
-                D_ij = self.cosmology.angular_diameter_distance_z1z2(
-                    plane.redshift, next_plane.redshift
-                ).value  # in Mpc
-                weight = D_ij / plane.Dds
-            else:
-                # Last plane: use full distance to source
-                weight = plane.Dds / self.Ds
+            # Compute deflection weight: β_i = D_is / D_s
+            # This is consistent for ALL planes (Schneider, Ehlers & Falco 1992)
+            # D_is = angular diameter distance from plane i to source
+            D_is = self.cosmology.angular_diameter_distance_z1z2(
+                plane.redshift, self.z_source
+            ).value  # in Mpc
+            weight = D_is / self.Ds
             
-            # Update position
+            # Update position: θ_{i+1} = θ_i - β_i × α_i(θ_i)
             current_pos = current_pos - weight * alpha_i
             
             if return_intermediate:

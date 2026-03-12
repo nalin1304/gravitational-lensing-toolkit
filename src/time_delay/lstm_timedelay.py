@@ -306,7 +306,12 @@ class TimeDelayMeasurement:
         # Remove NaN values
         valid = ~np.isnan(lc_B_shifted)
         if np.sum(valid) < 2:
-            return 0.0
+            import warnings
+            warnings.warn(
+                "Insufficient valid data points for correlation calculation (< 2). "
+                "Returning NaN instead of 0.0 to indicate invalid result."
+            )
+            return np.nan
 
         # Pearson correlation coefficient
         corr = np.corrcoef(lc_A[valid], lc_B_shifted[valid])[0, 1]
