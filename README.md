@@ -1,3 +1,5 @@
+> **Archived.** This is an earlier version of the lensing work, and the claims below (including "Publication-Ready") are out of date. Current code and scoped results: [Gravitational-Lensing-algorithm](https://github.com/nalin1304/Gravitational-Lensing-algorithm). Write-up: https://nalinaggarwal.me/work/lensing/
+
 # 🌌 Gravitational Lensing Toolkit (Publication-Ready)
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
